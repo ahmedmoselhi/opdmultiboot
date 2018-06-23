@@ -37,15 +37,15 @@
 #define OPD_LCD_YRES "/proc/stb/lcd/yres"
 #define OPD_LCD_BPP "/proc/stb/lcd/bpp"
 //#define OPD_KERNEL_MTD "/dev/mtd2"
-#define opd_MAIN_DIR "/opd"
-#define opd_DATA_DIR "OPDBootI"
-#define opd_PLUGIN_DIR "/usr/lib/enigma2/python/Plugins/Extensions/OPDBoot"
+#define OPD_MAIN_DIR "/opd"
+#define OPD_DATA_DIR "OPDBootI"
+#define OPD_PLUGIN_DIR "/usr/lib/enigma2/python/Plugins/Extensions/OPDBoot"
 #define OPD_SCREEN_WIDTH 1920
 #define OPD_SCREEN_HEIGHT 1080
 #define OPD_SCREEN_BPP 32
-#define opd_APP_NAME "OPDBoot"
+#define OPD_APP_NAME "OPDBoot"
 #define OPD_APP_VERION "1.0"
-#define opd_DISPLAY_NAME "OPDBoot"
+#define OPD_DISPLAY_NAME "OPDBoot"
 #ifndef OPD_DEFAULT_TIMER
 #define OPD_DEFAULT_TIMER 5
 #endif
@@ -60,17 +60,17 @@
 #define OPD_NANDWRITE_BIN "/usr/sbin/nandwrite"
 #define OPD_FLASHERASE_BIN "/usr/sbin/flash_erase"
 #define OPD_PYTHON_BIN "/usr/bin/python"
-#define opd_BRANDING_HELPER_BIN "/sbin/OPDBoot-branding-helper.py"
+#define OPD_BRANDING_HELPER_BIN "/sbin/OPDBoot-branding-helper.py"
 #define OPD_DD_BIN "/bin/dd"
 
 #define OPD_MENU_ITEM_RADIUS 10
 #define OPD_MENU_ITEM_HEIGHT 80
 #define OPD_MENU_ITEM_WIDTH 900
 #ifndef OPD_MENU_ITEM_COLOR
-#define opd_MENU_ITEM_COLOR 0xFA336699
+#define OPD_MENU_ITEM_COLOR 0xFA336699
 #endif
-#ifndef opd_MENU_ITEM_SELECTED_COLOR
-#define opd_MENU_ITEM_SELECTED_COLOR 0xFF000000
+#ifndef OPD_MENU_ITEM_SELECTED_COLOR
+#define OPD_MENU_ITEM_SELECTED_COLOR 0xFF000000
 #endif
 #ifndef OPD_MENU_ITEM_TEXT_COLOR
 #define OPD_MENU_ITEM_TEXT_COLOR 0xFFFFFFFF
@@ -80,7 +80,7 @@
 #define OPD_MENU_BOX_RADIUS 10
 #define OPD_MENU_BOX_MARGIN 6
 #ifndef OPD_MENU_BOX_COLOR
-#define opd_MENU_BOX_COLOR 0xE0336699
+#define OPD_MENU_BOX_COLOR 0xE0336699
 #endif
 #define OPD_MENU_MAX_ITEMS 8
 #define OPD_MENU_ARROWS_SIZE 120
