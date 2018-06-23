@@ -356,18 +356,18 @@ void opd_utils_build_platform_wrapper(opd_device_item *item)
 	FILE *fp;
 	char tmp[255];
 	char cmd[512];
-	
+
 	sprintf(tmp, "%s/%s/%s/usr/bin/platform-util-wrapper.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
- 	fp = fopen(tmp,"w");
- 	fprintf(fp,"%s","#!/bin/sh\n\n");
- 	fprintf(fp,"%s","export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin\n");
- 	fprintf(fp,"%s","/etc/init.d/vuplus-platform-util start\n");
+	fp = fopen(tmp,"w");
+	fprintf(fp,"%s","#!/bin/sh\n\n");
+	fprintf(fp,"%s","export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin\n");
+	fprintf(fp,"%s","/etc/init.d/vuplus-platform-util start\n");
 	fprintf(fp,"%s","/etc/init.d/platform-util start\n");
 	fprintf(fp,"%s","/etc/init.d/gigablue-platform-util start\n");
- 	fclose(fp);
- 	
- 	sprintf(cmd, "chmod 0755 %s/%s/%s/usr/bin/platform-util-wrapper.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
- 	system(cmd);
+	fclose(fp);
+
+	sprintf(cmd, "chmod 0755 %s/%s/%s/usr/bin/platform-util-wrapper.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	system(cmd);
 }
 
 void opd_utils_init_system()
