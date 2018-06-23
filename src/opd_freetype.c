@@ -51,7 +51,7 @@ int opd_init_freetype()
 {
 	if (FT_Init_FreeType(&opd_freetype_library) != 0) {
 		opd_log(LOG_ERROR, "cannot init freetype");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
 	//opd_log(LOG_DEBUG, "opd_init_freetype boxmodel: %s",opd_vumodel);
