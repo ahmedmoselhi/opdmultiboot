@@ -34,8 +34,8 @@
 #include "opd_utils.h"
 #include "opd_branding.h"
 
-#define opd_FS_MAX 3
-static const char *opd_utils_fs_types[opd_FS_MAX] = { "ext4", "ext3" };
+#define OPD_FS_MAX 3
+static const char *opd_utils_fs_types[OPD_FS_MAX] = { "ext4", "ext3" };
 
 int opd_utils_dir_exists(const char* folder)
 {
@@ -57,10 +57,10 @@ int opd_utils_file_exists(const char* filename)
 void opd_utils_create_dir_tree()
 {
 	char tmp[255];
-	if (!opd_utils_dir_exists(opd_MAIN_DIR))
-		mkdir(opd_MAIN_DIR, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (!opd_utils_dir_exists(OPD_MAIN_DIR))
+		mkdir(OPD_MAIN_DIR, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	
-	sprintf(tmp, "%s/.kernels", opd_MAIN_DIR);
+	sprintf(tmp, "%s/.kernels", OPD_MAIN_DIR);
 	if (!opd_utils_dir_exists(tmp))
 		mkdir(tmp, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
@@ -68,11 +68,11 @@ void opd_utils_create_dir_tree()
 int opd_utils_mount(const char* device, const char* mountpoint)
 {
 	int i;
-	for (i = 0; i < opd_FS_MAX; i++)
+	for (i = 0; i < OPD_FS_MAX; i++)
 		if (mount(device, mountpoint, opd_utils_fs_types[i], 0, NULL) == 0)
-			return opd_SUCCESS;
+			return OPD_SUCCESS;
 	
-	return opd_ERROR;
+	return OPD_ERROR;
 }
 
 int opd_utils_is_mounted(const char *mountpoint)
@@ -97,7 +97,7 @@ int opd_utils_is_mounted(const char *mountpoint)
 
 int opd_utils_umount(const char* mountpoint)
 {
-	return umount(mountpoint) == 0 ? opd_SUCCESS : opd_ERROR;
+	return umount(mountpoint) == 0 ? OPD_SUCCESS : OPD_ERROR;
 }
 
 void opd_utils_remount_media(opd_device_item *item)
@@ -107,9 +107,9 @@ void opd_utils_remount_media(opd_device_item *item)
 	char media[255];
 	char base[255];
 	char vol[255];
-	sprintf(media, "%s/%s/%s/media", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-	sprintf(base, "%s/%s/%s", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-	sprintf(vol, "%s/%s/%s/etc/init.d/volatile-media.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	sprintf(media, "%s/%s/%s/media", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+	sprintf(base, "%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+	sprintf(vol, "%s/%s/%s/etc/init.d/volatile-media.sh", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 	
 	if (opd_utils_file_exists(vol)) {
 		opd_log(LOG_DEBUG, "%-33s:remount /media into %s", __FUNCTION__, media);
@@ -125,54 +125,54 @@ void opd_utils_remount_media(opd_device_item *item)
 					char tmp[255];
 					sprintf(tmp, "%s/%s", base, part->mnt_dir);
 					
-					if (opd_utils_umount(part->mnt_dir) == opd_ERROR)
+					if (opd_utils_umount(part->mnt_dir) == OPD_ERROR)
 						opd_log(LOG_WARNING, "%-33s: cannot umount %s", __FUNCTION__, part->mnt_dir);
 					
 					if (!opd_utils_dir_exists(tmp))
 						mkdir(tmp, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-					if (opd_utils_mount(part->mnt_fsname, tmp) == opd_ERROR)
+					if (opd_utils_mount(part->mnt_fsname, tmp) == OPD_ERROR)
 						opd_log(LOG_WARNING, "%-33s: cannot mount %s", __FUNCTION__, tmp);
 				}
 		}
 		endmntent(mtab);
 	}
 
-	if (opd_utils_umount("/media") == opd_ERROR)
+	if (opd_utils_umount("/media") == OPD_ERROR)
 		opd_log(LOG_WARNING, "%-33s: cannot umount /media", __FUNCTION__);
 }
 
 int opd_utils_find_and_mount()
 {
 	struct dirent *dir;
-	DIR *fd = opendir(opd_DEVICES_DIR);
+	DIR *fd = opendir(OPD_DEVICES_DIR);
 	if (fd) {
 		opd_utils_create_dir_tree();
 		
 		while ((dir = readdir(fd)) != NULL) {
-			if (strlen(dir->d_name) == 4 && memcmp(dir->d_name, "sd", 2) == 0) {
+			if ((strlen(dir->d_name) == 3 || strlen(dir->d_name) == 4) && memcmp(dir->d_name, "sd", 2) == 0) {
 				char device[255];
-				sprintf(device, "%s/%s", opd_DEVICES_DIR, dir->d_name);
+				sprintf(device, "%s/%s", OPD_DEVICES_DIR, dir->d_name);
 				opd_log(LOG_DEBUG, "%-33s: check device %s", __FUNCTION__, device);
 				
-				opd_utils_umount(opd_MAIN_DIR); // just force umount without check
-				if (opd_utils_mount(device, opd_MAIN_DIR) == opd_SUCCESS) {
+				opd_utils_umount(OPD_MAIN_DIR); // just force umount without check
+				if (opd_utils_mount(device, OPD_MAIN_DIR) == OPD_SUCCESS) {
 					char datadir[255];
-					sprintf(datadir, "%s/%s", opd_MAIN_DIR, opd_DATA_DIR);
+					sprintf(datadir, "%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR);
 					if (opd_utils_dir_exists(datadir)) {
 						opd_log(LOG_DEBUG, "%-33s: found data on device %s", __FUNCTION__, device);
 						closedir(fd);
-						return opd_SUCCESS;
+						return OPD_SUCCESS;
 					}
 					
-					if (opd_utils_umount(opd_MAIN_DIR) == opd_ERROR)
-						opd_log(LOG_ERROR, "%-33s: cannot umount %s", __FUNCTION__, opd_MAIN_DIR);
+					if (opd_utils_umount(OPD_MAIN_DIR) == OPD_ERROR)
+						opd_log(LOG_ERROR, "%-33s: cannot umount %s", __FUNCTION__, OPD_MAIN_DIR);
 				}
 			}
 		}	
 		closedir(fd);
 	}
-	return opd_ERROR;
+	return OPD_ERROR;
 }
 
 opd_device_item *opd_utils_get_images()
@@ -195,7 +195,7 @@ opd_device_item *opd_utils_get_images()
 		last = item;
 	}
 
-	sprintf(datadir, "%s/%s", opd_MAIN_DIR, opd_DATA_DIR);
+	sprintf(datadir, "%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR);
 	fd = opendir(datadir);
 	if (fd) {
 		while ((dir = readdir(fd)) != NULL) {
@@ -240,14 +240,14 @@ void opd_utils_free_items(opd_device_item *items)
 void opd_utils_update_background(opd_device_item *item)
 {
 	char tmp[255];
-	sprintf(tmp, "%s %s/usr/share/bootlogo.mvi", opd_SHOWIFRAME_BIN, item->directory);
+	sprintf(tmp, "%s %s/usr/share/bootlogo.mvi", OPD_SHOWIFRAME_BIN, item->directory);
 	system(tmp);
 }
 
 void opd_utils_remove_nextboot()
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.%s", opd_MAIN_DIR, opd_DATA_DIR, opd_SETTINGS_NEXTBOOT);
+	sprintf(tmp, "%s/%s/.%s", OPD_MAIN_DIR, OPD_DATA_DIR, OPD_SETTINGS_NEXTBOOT);
 	if(opd_utils_file_exists(tmp)) {
 		char cmd[255];
 		sprintf(cmd, "rm -rf %s", tmp);
@@ -258,24 +258,24 @@ void opd_utils_remove_nextboot()
 int opd_utils_gettimer()
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.%s", opd_MAIN_DIR, opd_DATA_DIR, opd_SETTINGS_TIMER);
+	sprintf(tmp, "%s/%s/.%s", OPD_MAIN_DIR, OPD_DATA_DIR, OPD_SETTINGS_TIMER);
 	if(opd_utils_file_exists(tmp)) {
-		char *tmp = opd_utils_read(opd_SETTINGS_TIMER);
+		char *tmp = opd_utils_read(OPD_SETTINGS_TIMER);
 		if (tmp) {
 			int ret = atoi(tmp);
 			free(tmp);
 			return ret;
 		}
 	}
-	return opd_DEFAULT_TIMER;
+	return OPD_DEFAULT_TIMER;
 }
 
 void opd_utils_setrctype()
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.%s", opd_MAIN_DIR, opd_DATA_DIR, opd_SETTINGS_RCTYPE);
+	sprintf(tmp, "%s/%s/.%s", OPD_MAIN_DIR, OPD_DATA_DIR, OPD_SETTINGS_RCTYPE);
 	if(opd_utils_file_exists(tmp)) {
-		char *tmp = opd_utils_read(opd_SETTINGS_RCTYPE);
+		char *tmp = opd_utils_read(OPD_SETTINGS_RCTYPE);
 		if (tmp) {
 			int ret = atoi(tmp);
 			free(tmp);
@@ -291,7 +291,7 @@ void opd_utils_setrctype()
 void opd_utils_save(const char* key, const char* value)
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.%s", opd_MAIN_DIR, opd_DATA_DIR, key);
+	sprintf(tmp, "%s/%s/.%s", OPD_MAIN_DIR, OPD_DATA_DIR, key);
 	FILE *fd = fopen(tmp, "w");
 	if (fd) {
 		fwrite(value, 1, strlen(value), fd);
@@ -303,7 +303,7 @@ void opd_utils_save(const char* key, const char* value)
 int opd_utils_check_lock_menu()
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.bootmenu.lock", opd_MAIN_DIR, opd_DATA_DIR);
+	sprintf(tmp, "%s/%s/.bootmenu.lock", OPD_MAIN_DIR, OPD_DATA_DIR);
 	if (opd_utils_file_exists(tmp)) {
 		opd_log(LOG_DEBUG ,"%-33s: bootmenu disabled!", __FUNCTION__);
 		return 1;
@@ -316,7 +316,7 @@ int opd_utils_check_lock_menu()
 char* opd_utils_read(const char *key)
 {
 	char tmp[255];
-	sprintf(tmp, "%s/%s/.%s", opd_MAIN_DIR, opd_DATA_DIR, key);
+	sprintf(tmp, "%s/%s/.%s", OPD_MAIN_DIR, OPD_DATA_DIR, key);
 	FILE *fd = fopen(tmp, "r");
 	if (fd) {
 		char line[1024];
@@ -357,7 +357,7 @@ void opd_utils_build_platform_wrapper(opd_device_item *item)
 	char tmp[255];
 	char cmd[512];
 
-	sprintf(tmp, "%s/%s/%s/usr/bin/platform-util-wrapper.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	sprintf(tmp, "%s/%s/%s/usr/bin/platform-util-wrapper.sh", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 	fp = fopen(tmp,"w");
 	fprintf(fp,"%s","#!/bin/sh\n\n");
 	fprintf(fp,"%s","export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin\n");
@@ -366,7 +366,7 @@ void opd_utils_build_platform_wrapper(opd_device_item *item)
 	fprintf(fp,"%s","/etc/init.d/gigablue-platform-util start\n");
 	fclose(fp);
 
-	sprintf(cmd, "chmod 0755 %s/%s/%s/usr/bin/platform-util-wrapper.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	sprintf(cmd, "chmod 0755 %s/%s/%s/usr/bin/platform-util-wrapper.sh", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 	system(cmd);
 }
 
@@ -388,10 +388,10 @@ void opd_utils_init_system()
 			opd_log(LOG_ERROR, "%-33s: cannot mount /media", __FUNCTION__);
 
 	opd_log(LOG_DEBUG, "%-33s: run volatile media", __FUNCTION__);
-	system(opd_VOLATILE_MEDIA_BIN);
+	system(OPD_VOLATILE_MEDIA_BIN);
 
 	opd_log(LOG_DEBUG, "%-33s: run mdev", __FUNCTION__);
-	system(opd_MDEV_BIN);
+	system(OPD_MDEV_BIN);
 	
 	// we really need this sleep?? :( - (wait for mdev to finalize)
 	sleep(5);
@@ -417,11 +417,11 @@ void opd_utils_prepare_destination(opd_device_item *item)
 		char sys[255];
 		char opd[255];
 		char opd_plugin[255];
-		sprintf(dev, "%s/%s/%s/dev", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-		sprintf(proc, "%s/%s/%s/proc", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-		sprintf(sys, "%s/%s/%s/sys", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-		sprintf(opd, "%s/%s/%s/%s", opd_MAIN_DIR, opd_DATA_DIR, item->identifier, opd_MAIN_DIR);
-		sprintf(opd_plugin, "%s/%s/%s/%s", opd_MAIN_DIR, opd_DATA_DIR, item->identifier, opd_PLUGIN_DIR);
+		sprintf(dev, "%s/%s/%s/dev", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+		sprintf(proc, "%s/%s/%s/proc", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+		sprintf(sys, "%s/%s/%s/sys", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+		sprintf(opd, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR);
+		sprintf(opd_plugin, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_PLUGIN_DIR);
 		
 		if (!opd_utils_is_mounted(dev))
 			if (mount("/dev", dev, NULL, MS_BIND, NULL) != 0)
@@ -439,15 +439,15 @@ void opd_utils_prepare_destination(opd_device_item *item)
 			mkdir(opd, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 		if (!opd_utils_is_mounted(opd))
-			if (mount(opd_MAIN_DIR, opd, NULL, MS_BIND, NULL) != 0)
-				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, opd_MAIN_DIR, opd);
+			if (mount(OPD_MAIN_DIR, opd, NULL, MS_BIND, NULL) != 0)
+				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, OPD_MAIN_DIR, opd);
 				
 		if (!opd_utils_dir_exists(opd_plugin))
 			mkdir(opd_plugin, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 		if (!opd_utils_is_mounted(opd_plugin))
-			if (mount(opd_PLUGIN_DIR, opd_plugin, NULL, MS_BIND, NULL) != 0)
-				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, opd_PLUGIN_DIR, opd_plugin);
+			if (mount(OPD_PLUGIN_DIR, opd_plugin, NULL, MS_BIND, NULL) != 0)
+				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, OPD_PLUGIN_DIR, opd_plugin);
 	}
 	
 }
@@ -459,18 +459,18 @@ void opd_utils_load_modules(opd_device_item *item)
 	opd_log(LOG_DEBUG, "%-33s: load modules", __FUNCTION__);
 
 	if (item == NULL || strcmp(item->identifier, "flash") == 0) {
-		system(opd_MODUTILS_BIN);
+		system(OPD_MODUTILS_BIN);
 	}
 	else {
 		
 		char cmd[512];
 		
-		sprintf(cmd, "%s %s/%s/%s %s", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier, opd_MODUTILS_BIN);
+		sprintf(cmd, "%s %s/%s/%s %s", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MODUTILS_BIN);
 		system(cmd);
 	}
 	
 	for (i = 0; i < 200; i++) {
-		if (opd_utils_file_exists(opd_VIDEO_DEVICE))
+		if (opd_utils_file_exists(OPD_VIDEO_DEVICE))
 			break;
 		
 		usleep(10000);
@@ -484,9 +484,9 @@ void opd_utils_load_modules(opd_device_item *item)
 	}
 	else {
 		char cmd[255];
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/populate-volatile.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/populate-volatile.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/lircd start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/lircd start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 	}
 #endif
@@ -515,7 +515,7 @@ void opd_utils_load_modules_gl(opd_device_item *item)
 		system("/etc/init.d/bootmisc.sh start");
 		system("/etc/init.d/vuplus-platform-util start");
 		system("/etc/init.d/platform-util start");
-		system("/etc/init.d/gigablue-platform-util start");		
+		system("/etc/init.d/gigablue-platform-util start");
 	}
 
 	else 
@@ -525,40 +525,40 @@ void opd_utils_load_modules_gl(opd_device_item *item)
 		char cmd[512];
 			
 
-		sprintf(tmp, "%s/%s/%s/etc/init.d/mountrun.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(tmp, "%s/%s/%s/etc/init.d/mountrun.sh", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		if(opd_utils_file_exists(tmp)) {
-			sprintf(cmd, "%s %s/%s/%s /etc/init.d/mountrun.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+			sprintf(cmd, "%s %s/%s/%s /etc/init.d/mountrun.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 			system(cmd);
 		}
 
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/mountall.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/mountall.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 		
-		sprintf(tmp, "%s/%s/%s/etc/init.d/modload.sh", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(tmp, "%s/%s/%s/etc/init.d/modload.sh", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		if(opd_utils_file_exists(tmp)) {
-			sprintf(cmd, "%s %s/%s/%s /etc/init.d/modload.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+			sprintf(cmd, "%s %s/%s/%s /etc/init.d/modload.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 			system(cmd);
 		}
 		
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/modutils.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/modutils.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 		
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/populate-volatile.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/populate-volatile.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 
-		sprintf(cmd, "%s %s/%s/%s /etc/init.d/bootmisc.sh start", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /etc/init.d/bootmisc.sh start", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 
 // prevent missing path in chroot
 		opd_utils_build_platform_wrapper(item);
 
-		sprintf(cmd, "%s %s/%s/%s /usr/bin/platform-util-wrapper.sh", opd_CHROOT_BIN, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s %s/%s/%s /usr/bin/platform-util-wrapper.sh", OPD_CHROOT_BIN, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		system(cmd);
 		
 	}
 
 	for (i = 0; i < 500; i++) {
-		if (opd_utils_file_exists(opd_VIDEO_DEVICE))
+		if (opd_utils_file_exists(OPD_VIDEO_DEVICE))
 			break;
 		
 		usleep(10000);
@@ -573,13 +573,13 @@ void opd_utils_backup_kernel(opd_device_item *item)
 		return;
 	
 	opd_log(LOG_DEBUG, "%-33s: backup kernel for image '%s'", __FUNCTION__, item->identifier);
-#ifdef opd_DREAMBOX
-	sprintf(cmd, "%s %s -nof %s/%s/.kernels/%s.bin", opd_NANDDUMP_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-#elif defined(opd_MMCBLK)
-	if (opd_utils_file_exists(opd_PROC_STB))
-		sprintf(cmd, "%s if=%s of=%s/%s/.kernels/%s.bin", opd_DD_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+#ifdef OPD_DREAMBOX
+	sprintf(cmd, "%s %s -nof %s/%s/.kernels/%s.bin", OPD_NANDDUMP_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+#elif defined(OPD_MMCBLK)
+	if (opd_utils_file_exists(OPD_PROC_STB))
+		sprintf(cmd, "%s if=%s of=%s/%s/.kernels/%s.bin", OPD_DD_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 #else
-	sprintf(cmd, "%s %s -f %s/%s/.kernels/%s.bin", opd_NANDDUMP_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	sprintf(cmd, "%s %s -f %s/%s/.kernels/%s.bin", OPD_NANDDUMP_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 #endif
 	system(cmd);
 //	opd_log(LOG_DEBUG, "opd_utils_backup_kernel(): cmd: %s");
@@ -593,22 +593,22 @@ void opd_utils_restore_kernel(opd_device_item *item)
 	if (!item)
 		return;
 	
-	sprintf(filename, "%s/%s/.kernels/%s.bin", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+	sprintf(filename, "%s/%s/.kernels/%s.bin", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 	if (opd_utils_file_exists(filename)) {
-#ifndef opd_MMCBLK
+#ifndef OPD_MMCBLK
 		opd_log(LOG_DEBUG, "%-33s: erasing MTD", __FUNCTION__);
-		sprintf(cmd, "%s %s 0 0", opd_FLASHERASE_BIN, opd_KERNEL_MTD);
+		sprintf(cmd, "%s %s 0 0", OPD_FLASHERASE_BIN, OPD_KERNEL_MTD);
 		system(cmd);
 #endif
 	
 		opd_log(LOG_DEBUG, "%-33s: restore kernel for image '%s'", __FUNCTION__, item->identifier);
-#ifdef opd_DREAMBOX
-		sprintf(cmd, "%s -mno %s %s/%s/.kernels/%s.bin", opd_NANDWRITE_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-#elif defined(opd_MMCBLK)
-		if (opd_utils_file_exists(opd_PROC_STB))
-			sprintf(cmd, "%s of=%s if=%s/%s/.kernels/%s.bin", opd_DD_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+#ifdef OPD_DREAMBOX
+		sprintf(cmd, "%s -mno %s %s/%s/.kernels/%s.bin", OPD_NANDWRITE_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+#elif defined(OPD_MMCBLK)
+		if (opd_utils_file_exists(OPD_PROC_STB))
+			sprintf(cmd, "%s of=%s if=%s/%s/.kernels/%s.bin", OPD_DD_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 #else
-		sprintf(cmd, "%s -pm %s %s/%s/.kernels/%s.bin", opd_NANDWRITE_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
+		sprintf(cmd, "%s -pm %s %s/%s/.kernels/%s.bin", OPD_NANDWRITE_BIN, OPD_KERNEL_MTD, OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 #endif
 		system(cmd);
 	}
@@ -622,16 +622,16 @@ void opd_utils_reboot()
 void opd_utils_sysvinit(opd_device_item *item, const char *args)
 {
 	if (item == NULL || strcmp(item->identifier, "flash") == 0) {
-		execl(opd_SYSVINIT_BIN, opd_SYSVINIT_BIN, args, NULL);
+		execl(OPD_SYSVINIT_BIN, OPD_SYSVINIT_BIN, args, NULL);
 	}
 	else {
 		char path[255];
 		char udev[255];
-		sprintf(path, "%s/%s/%s", opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
-		sprintf(udev, "%s/%s/%s/%s", opd_MAIN_DIR, opd_DATA_DIR, item->identifier, "/etc/init.d/udev");
+		sprintf(path, "%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
+		sprintf(udev, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, "/etc/init.d/udev");
 		if (opd_utils_file_exists(udev))
 				system("/etc/init.d/mdev stop");
 				
-		execl(opd_CHROOT_BIN, opd_CHROOT_BIN, path, opd_INIT_BIN, args, NULL);
+		execl(OPD_CHROOT_BIN, OPD_CHROOT_BIN, path, OPD_INIT_BIN, args, NULL);
 	}
 }

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_FRAMEBUFFER_H_
-#define _opd_FRAMEBUFFER_H_
+#ifndef _OPD_FRAMEBUFFER_H_
+#define _OPD_FRAMEBUFFER_H_
 
 int opd_open_framebuffer();
 void opd_close_framebuffer();
@@ -33,4 +33,4 @@ void opd_draw_character(FT_Bitmap* bitmap, FT_Int x, FT_Int y, int color);
 int opd_get_screen_width();
 int opd_get_screen_height();
 
-#endif // _opd_FRAMEBUFFER_H_
+#endif // _OPD_FRAMEBUFFER_H_

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_BRANDING_H_
-#define _opd_BRANDING_H_
+#ifndef _OPD_BRANDING_H_
+#define _OPD_BRANDING_H_
 
 #include "opd_utils.h"	
 
@@ -29,4 +29,4 @@ int opd_branding_is_compatible(const char* base_dir);
 
 opd_device_item *opd_branding_read_info(const char* base_dir, const char *identifier);
 
-#endif // _opd_BRANDING_H_
+#endif // _OPD_BRANDING_H_

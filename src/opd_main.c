@@ -44,51 +44,59 @@ char opd_vumodel[63];
 void opd_draw_header()
 {
 	char tmp[255];
-	sprintf(tmp, "%s %s", opd_DISPLAY_NAME, opd_APP_VERION);
-	opd_render_text(tmp,
-		opd_HEADER_X + 45,
-		opd_HEADER_Y,
+	sprintf(tmp, "%s %s", OPD_DISPLAY_NAME, OPD_APP_VERION);
+	opd_render_symbol(OPD_SYMBOL_LOGO,
+		OPD_HEADER_X,
+		OPD_HEADER_Y - 25,
 		400,
-		opd_HEADER_COLOR,
-		opd_HEADER_FONT_SIZE,
-		opd_TEXT_ALIGN_LEFT);
+		OPD_HEADER_COLOR,
+		OPD_HEADER_FONT_SIZE,
+		OPD_TEXT_ALIGN_LEFT);
+	
+	opd_render_text(tmp,
+		OPD_HEADER_X + 45,
+		OPD_HEADER_Y,
+		400,
+		OPD_HEADER_COLOR,
+		OPD_HEADER_FONT_SIZE,
+		OPD_TEXT_ALIGN_LEFT);
 }
 
 void opd_draw_lcd()
 {
 	char tmp[255];
-	sprintf(tmp, "%s %s", opd_DISPLAY_NAME, opd_APP_VERION);
+	sprintf(tmp, "%s %s", OPD_DISPLAY_NAME, OPD_APP_VERION);
 	
-	int logo_x = opd_lcd_get_width() * opd_LCD_LOGO_X;
-	int logo_y = opd_lcd_get_height() * opd_LCD_LOGO_Y;
-	int logo_size = opd_lcd_get_width() * opd_LCD_LOGO_SIZE;
+	int logo_x = opd_lcd_get_width() * OPD_LCD_LOGO_X;
+	int logo_y = opd_lcd_get_height() * OPD_LCD_LOGO_Y;
+	int logo_size = opd_lcd_get_width() * OPD_LCD_LOGO_SIZE;
 	
-	int title_x = opd_lcd_get_width() * opd_LCD_TITLE_X;
-	int title_y = opd_lcd_get_height() * opd_LCD_TITLE_Y;
-	int title_size = opd_lcd_get_width() * opd_LCD_TITLE_SIZE;
+	int title_x = opd_lcd_get_width() * OPD_LCD_TITLE_X;
+	int title_y = opd_lcd_get_height() * OPD_LCD_TITLE_Y;
+	int title_size = opd_lcd_get_width() * OPD_LCD_TITLE_SIZE;
 
 	if (! strcmp(opd_vumodel,""))
-	opd_render_lcd_symbol(opd_SYMBOL_LOGO,
+	opd_render_lcd_symbol(OPD_SYMBOL_LOGO,
 		logo_x,
 		logo_y,
 		0,
-		opd_LCD_LOGO_COLOR,
+		OPD_LCD_LOGO_COLOR,
 		logo_size,
-		opd_TEXT_ALIGN_LEFT);
+		OPD_TEXT_ALIGN_LEFT);
 	else {
 		if (! strcmp(opd_vumodel,"duo2"))
 			title_y += 2;
 
-		sprintf(tmp, "VU+ %s %s", opd_DISPLAY_NAME, opd_APP_VERION);
+		sprintf(tmp, "VU+ %s %s", OPD_DISPLAY_NAME, OPD_APP_VERION);
 		title_x = logo_x;
 	}
 	opd_render_lcd_text(tmp,
 		title_x,
 		title_y,
 		0,
-		opd_LCD_TITLE_COLOR,
+		OPD_LCD_TITLE_COLOR,
 		title_size,
-		opd_TEXT_ALIGN_LEFT);
+		OPD_TEXT_ALIGN_LEFT);
 }
 
 void opd_draw_timer()
@@ -97,12 +105,12 @@ void opd_draw_timer()
 		char tmp[255];
 		sprintf(tmp, "%d", opd_current_timer);
 		opd_render_text(tmp,
-			opd_get_screen_width() - (400 + opd_TIMER_RIGHT_MARGIN),
-			opd_TIMER_Y,
+			opd_get_screen_width() - (400 + OPD_TIMER_RIGHT_MARGIN),
+			OPD_TIMER_Y,
 			400,
-			opd_TIMER_COLOR,
-			opd_TIMER_FONT_SIZE,
-			opd_TEXT_ALIGN_RIGHT);
+			OPD_TIMER_COLOR,
+			OPD_TIMER_FONT_SIZE,
+			OPD_TEXT_ALIGN_RIGHT);
 	}
 }
 
@@ -124,14 +132,14 @@ int opd_show_menu()
 {
 	struct timeval start, end;
 	
-	if (opd_open_framebuffer() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_open_framebuffer() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	if (opd_init_freetype() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_init_freetype() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	if (opd_input_open() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_input_open() == OPD_ERROR)
+		return OPD_ERROR;
 	
 	opd_lcd_open();
 	
@@ -195,7 +203,7 @@ int opd_show_menu()
 	opd_deinit_freetype();
 	opd_close_framebuffer();
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int main(int argc, char *argv[]) 
@@ -213,10 +221,10 @@ int main(int argc, char *argv[])
 		opd_device_item *items = NULL;
 		char *selected = NULL;
 		char *nextboot = NULL;
-		if (opd_utils_find_and_mount() == opd_SUCCESS) {
+		if (opd_utils_find_and_mount() == OPD_SUCCESS) {
 			items = opd_utils_get_images();
 			opd_menu_set(items);
-			selected = opd_utils_read(opd_SETTINGS_SELECTED);
+			selected = opd_utils_read(OPD_SETTINGS_SELECTED);
 			if (!selected) {
 				selected = malloc(6);
 				strcpy(selected, "flash");
@@ -230,14 +238,14 @@ int main(int argc, char *argv[])
 		opd_utils_prepare_destination(item);
 
 		int lock_menu = opd_utils_check_lock_menu();
-		int force = opd_utils_read_int(opd_SETTINGS_FORCE);
+		int force = opd_utils_read_int(OPD_SETTINGS_FORCE);
 		if (!force && items) 
 		{
 			opd_log(LOG_DEBUG, "%-33s: preparing environment...", __FUNCTION__);
 			if (!lock_menu) {
 				opd_log(LOG_DEBUG, "%-33s: loading modules...", __FUNCTION__);
 				opd_utils_load_modules(item);
-				if (!opd_utils_file_exists(opd_VIDEO_DEVICE)) {
+				if (!opd_utils_file_exists(OPD_VIDEO_DEVICE)) {
 					opd_utils_load_modules_gl(item);
 				}
 				opd_utils_setrctype();
@@ -245,7 +253,7 @@ int main(int argc, char *argv[])
 			opd_utils_update_background(item);
 			opd_utils_backup_kernel(item);
 
-			nextboot = opd_utils_read(opd_SETTINGS_NEXTBOOT);
+			nextboot = opd_utils_read(OPD_SETTINGS_NEXTBOOT);
 			if (nextboot) {
 				opd_menu_set_selected(nextboot);
 				opd_utils_remove_nextboot();
@@ -271,16 +279,16 @@ int main(int argc, char *argv[])
 			}
 		}
 		else {
-			opd_log(LOG_DEBUG, "%-33s: opd_utils_save_int(opd_SETTINGS_FORCE, 0)", __FUNCTION__);
-			opd_utils_save_int(opd_SETTINGS_FORCE, 0);
+			opd_log(LOG_DEBUG, "%-33s: opd_utils_save_int(OPD_SETTINGS_FORCE, 0)", __FUNCTION__);
+			opd_utils_save_int(OPD_SETTINGS_FORCE, 0);
 		}
 
 		item = opd_menu_get_selected();
 		if ((item && selected && strcmp(selected, item->identifier)) != 0 || (item && strstr(item->identifier, "vti") && !force)) {
 			opd_utils_restore_kernel(item);
-			opd_utils_save(opd_SETTINGS_SELECTED, item->identifier);
-			opd_utils_save_int(opd_SETTINGS_FORCE, 1);
-			opd_utils_umount(opd_MAIN_DIR);
+			opd_utils_save(OPD_SETTINGS_SELECTED, item->identifier);
+			opd_utils_save_int(OPD_SETTINGS_FORCE, 1);
+			opd_utils_umount(OPD_MAIN_DIR);
 			opd_utils_reboot();
 			is_rebooting = 1;
 		}
@@ -288,7 +296,7 @@ int main(int argc, char *argv[])
 		if (!is_rebooting) {
 			if (item != NULL && strcmp(item->identifier, "flash") != 0)
 				opd_utils_remount_media(item);
-			opd_utils_umount(opd_MAIN_DIR);
+			opd_utils_umount(OPD_MAIN_DIR);
 			opd_utils_sysvinit(item, NULL);
 		}
 
@@ -296,6 +304,6 @@ int main(int argc, char *argv[])
 		if (selected) free(selected);
 	}
 
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 

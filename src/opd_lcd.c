@@ -77,36 +77,36 @@ int opd_lcd_open()
 		opd_lcd_fd = open("/dev/oled0", O_RDWR);
 	if (opd_lcd_fd == -1) {
 		opd_log(LOG_ERROR, "%-33s: cannot open lcd device", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
-#ifdef opd_HAVE_TEXTLCD
-	return opd_SUCCESS;
+#ifdef OPD_HAVE_TEXTLCD
+	return OPD_SUCCESS;
 #endif
 
 	int tmp = LCD_MODE_BIN;
 	if (ioctl(opd_lcd_fd, LCD_IOCTL_ASC_MODE, &tmp)) {
 		opd_log(LOG_ERROR, "%-33s: failed to set lcd bin mode", __FUNCTION__);
-#ifndef opd_DREAMBOX
-		return opd_ERROR;
+#ifndef OPD_DREAMBOX
+		return OPD_ERROR;
 #endif
 	}
 	
-	opd_lcd_width = opd_lcd_read_value(opd_LCD_XRES);
+	opd_lcd_width = opd_lcd_read_value(OPD_LCD_XRES);
 	if (opd_lcd_width == 0) {
 		opd_log(LOG_ERROR, "%-33s: cannot read lcd x resolution", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
-	opd_lcd_height = opd_lcd_read_value(opd_LCD_YRES);
+	opd_lcd_height = opd_lcd_read_value(OPD_LCD_YRES);
 	if (opd_lcd_height == 0) {
 		opd_log(LOG_ERROR, "%-33s: cannot read lcd y resolution", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
-	opd_lcd_bpp = opd_lcd_read_value(opd_LCD_BPP);
+	opd_lcd_bpp = opd_lcd_read_value(OPD_LCD_BPP);
 	if (opd_lcd_bpp == 0) {
 		opd_log(LOG_ERROR, "%-33s: cannot read lcd bpp", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	opd_lcd_stride = opd_lcd_width * (opd_lcd_bpp / 8);
@@ -122,7 +122,7 @@ int opd_lcd_open()
 	    close(fb);
 	}
 
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_lcd_get_width()

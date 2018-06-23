@@ -20,19 +20,19 @@
  *
  */
 
-#ifndef _opd_FREETYPE_H_
-#define _opd_FREETYPE_H_
+#ifndef _OPD_FREETYPE_H_
+#define _OPD_FREETYPE_H_
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#define opd_TEXT_ALIGN_LEFT 0
-#define opd_TEXT_ALIGN_CENTER 1
-#define opd_TEXT_ALIGN_RIGHT 2
+#define OPD_TEXT_ALIGN_LEFT 0
+#define OPD_TEXT_ALIGN_CENTER 1
+#define OPD_TEXT_ALIGN_RIGHT 2
 
-#define opd_SYMBOL_LOGO 0x20
-#define opd_SYMBOL_ARROW_UP 0x21
-#define opd_SYMBOL_ARROW_DOWN 0x22
+#define OPD_SYMBOL_LOGO 0x20
+#define OPD_SYMBOL_ARROW_UP 0x21
+#define OPD_SYMBOL_ARROW_DOWN 0x22
 
 int opd_init_freetype();
 void opd_deinit_freetype();
@@ -41,4 +41,4 @@ int opd_render_lcd_symbol(int code, int x, int y, int width, int color, int font
 int opd_render_text(const char* text, int x, int y, int width, int color, int font_size, int align);
 int opd_render_lcd_text(const char* text, int x, int y, int width, int color, int font_size, int align);
 
-#endif // _opd_FREETYPE_H_
+#endif // _OPD_FREETYPE_H_

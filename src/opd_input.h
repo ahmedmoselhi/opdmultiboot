@@ -20,11 +20,11 @@
  *
  */
 
-#ifndef _opd_INPUT_H_
-#define _opd_INPUT_H_
+#ifndef _OPD_INPUT_H_
+#define _OPD_INPUT_H_
 
 int opd_input_open();
 void opd_input_close();
 int opd_input_get_code();
 
-#endif // _opd_INPUT_H_
+#endif // _OPD_INPUT_H_

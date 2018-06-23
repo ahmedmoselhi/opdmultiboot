@@ -59,34 +59,34 @@ int opd_init_freetype()
 		//opd_log(LOG_DEBUG, "opd_init_freetype opd_segoe_ui_font");
 		if (FT_New_Memory_Face(opd_freetype_library, (const FT_Byte*)opd_segoe_ui_font, opd_segoe_ui_font_length, 0, &opd_freetype_face) != 0) {
 			opd_log(LOG_ERROR, "%-33s: cannot open base font", __FUNCTION__);
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 		if (FT_New_Memory_Face(opd_freetype_library, (const FT_Byte*)opd_segoe_ui_font, opd_segoe_ui_font_length, 0, &opd_freetype_lcd_face) != 0) {
 			opd_log(LOG_ERROR, "%-33s: cannot open base font", __FUNCTION__);
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 	} else {
 		//opd_log(LOG_DEBUG, "opd_init_freetype opd_lcddot_font");
 		if (FT_New_Memory_Face(opd_freetype_library, (const FT_Byte*)opd_segoe_ui_font, opd_segoe_ui_font_length, 0, &opd_freetype_face) != 0) {
 			opd_log(LOG_ERROR, "%-33s: cannot open base font", __FUNCTION__);
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 		if (FT_New_Memory_Face(opd_freetype_library, (const FT_Byte*)opd_lcddot_font, opd_lcddot_font_length, 0, &opd_freetype_lcd_face) != 0) {
 			opd_log(LOG_ERROR, "%-33s: cannot open base font", __FUNCTION__);
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 	}
 
 	if (FT_New_Memory_Face(opd_freetype_library, (const FT_Byte*)opd_icomoon_font, opd_icomoon_font_length, 0, &opd_freetype_symbols_face) != 0) {
 		opd_log(LOG_ERROR, "cannot open symbols font");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	opd_freetype_slot = opd_freetype_face->glyph;
 	opd_freetype_lcd_slot = opd_freetype_lcd_face->glyph;
 	opd_freetype_symbols_slot = opd_freetype_symbols_face->glyph;
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 void opd_deinit_freetype()
@@ -101,42 +101,42 @@ int opd_render_symbol(int code, int x, int y, int width, int color, int font_siz
 {
 	if (FT_Set_Char_Size(opd_freetype_symbols_face, font_size * 64, 0, 100, 0)) {
 		opd_log(LOG_ERROR, "cannot set font size");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	if (FT_Load_Char(opd_freetype_symbols_face, code, FT_LOAD_RENDER) != 0)
-		return opd_ERROR;
+		return OPD_ERROR;
 	
 	int offset = 0;
-	if (align == opd_TEXT_ALIGN_CENTER)
+	if (align == OPD_TEXT_ALIGN_CENTER)
 		offset = (width - opd_freetype_symbols_slot->bitmap.width) / 2;
-	else if (align == opd_TEXT_ALIGN_RIGHT)
+	else if (align == OPD_TEXT_ALIGN_RIGHT)
 		offset = width - opd_freetype_symbols_slot->bitmap.width;
 	
 	opd_draw_character(&opd_freetype_symbols_slot->bitmap, offset + x, y, color);
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_render_lcd_symbol(int code, int x, int y, int width, int color, int font_size, int align)
 {
 	if (FT_Set_Char_Size(opd_freetype_symbols_face, font_size * 64, 0, 100, 0)) {
 		opd_log(LOG_ERROR, "cannot set font size");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	if (FT_Load_Char(opd_freetype_symbols_face, code, FT_LOAD_RENDER) != 0)
-		return opd_ERROR;
+		return OPD_ERROR;
 	
 	int offset = 0;
-	if (align == opd_TEXT_ALIGN_CENTER)
+	if (align == OPD_TEXT_ALIGN_CENTER)
 		offset = (width - opd_freetype_symbols_slot->bitmap.width) / 2;
-	else if (align == opd_TEXT_ALIGN_RIGHT)
+	else if (align == OPD_TEXT_ALIGN_RIGHT)
 		offset = width - opd_freetype_symbols_slot->bitmap.width;
 	
 	opd_lcd_draw_character(&opd_freetype_symbols_slot->bitmap, offset + x, y, color);
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_render_text(const char* text, int x, int y, int width, int color, int font_size, int align)
@@ -154,7 +154,7 @@ int opd_render_text(const char* text, int x, int y, int width, int color, int fo
 
 	if (FT_Set_Char_Size(opd_freetype_face, font_size * 64, 0, 100, 0)) {
 		opd_log(LOG_ERROR, "cannot set font size");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
 	for(i = 0; i < num_chars; i++) {
@@ -171,15 +171,15 @@ int opd_render_text(const char* text, int x, int y, int width, int color, int fo
 	int text_width = (pos[num_chars - 1].x + bitmaps[num_chars - 1].width) - pos[0].x;
 		
 	int offset = 0;
-	if (align == opd_TEXT_ALIGN_CENTER)
+	if (align == OPD_TEXT_ALIGN_CENTER)
 		offset = (width - text_width) / 2;
-	else if (align == opd_TEXT_ALIGN_RIGHT)
+	else if (align == OPD_TEXT_ALIGN_RIGHT)
 		offset = width - text_width;
 	
 	for(i = 0; i < num_chars; i++)
 		opd_draw_character(&bitmaps[i], offset + pos[i].x, pos[i].y, color);
 
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_render_lcd_text(const char* text, int x, int y, int width, int color, int font_size, int align)
@@ -200,13 +200,13 @@ int opd_render_lcd_text(const char* text, int x, int y, int width, int color, in
 //		opd_log(LOG_DEBUG, "FT_Set_Char_Size");
 		if (FT_Set_Char_Size(opd_freetype_lcd_face, font_size * 64, 0, 100, 0)) {
 			opd_log(LOG_ERROR, "cannot set font size");
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 	} else {
 //		opd_log(LOG_DEBUG, "FT_Set_Pixel_Size");
 		if (FT_Set_Pixel_Sizes(opd_freetype_lcd_face, 16, 16)){
 			opd_log(LOG_ERROR, "cannot set font size");
-			return opd_ERROR;
+			return OPD_ERROR;
 		}
 	}
 
@@ -227,13 +227,13 @@ int opd_render_lcd_text(const char* text, int x, int y, int width, int color, in
 	int text_width = (pos[num_chars - 1].x + bitmaps[num_chars - 1].width) - pos[0].x;
 		
 	int offset = 0;
-	if (align == opd_TEXT_ALIGN_CENTER)
+	if (align == OPD_TEXT_ALIGN_CENTER)
 		offset = (width - text_width) / 2;
-	else if (align == opd_TEXT_ALIGN_RIGHT)
+	else if (align == OPD_TEXT_ALIGN_RIGHT)
 		offset = width - text_width;
 	
 	for(i = 0; i < num_chars; i++)
 		opd_lcd_draw_character(&bitmaps[i], offset + pos[i].x, pos[i].y, color);
 
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }

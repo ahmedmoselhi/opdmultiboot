@@ -33,13 +33,13 @@ void opd_log(int level, const char* format, ...)
 	switch(level)
 	{
 		case LOG_ERROR:
-			printf("%s - error: ", opd_APP_NAME);
+			printf("%s - error: ", OPD_APP_NAME);
 			break;
 		case LOG_WARNING:
-			printf("%s - warning: ", opd_APP_NAME);
+			printf("%s - warning: ", OPD_APP_NAME);
 			break;
 		case LOG_DEBUG:
-			printf("%s - debug: ", opd_APP_NAME);
+			printf("%s - debug: ", OPD_APP_NAME);
 			break;
 	}
 	

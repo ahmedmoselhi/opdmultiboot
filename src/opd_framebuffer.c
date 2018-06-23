@@ -59,12 +59,12 @@ int opd_read_screen_info()
 {
 	if (ioctl(opd_fb_fd, FBIOGET_FSCREENINFO, &opd_fix_screen_info) == -1) {
 		opd_log(LOG_ERROR, "%-33s: cannot read fixed information", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
 	if (ioctl(opd_fb_fd, FBIOGET_VSCREENINFO, &opd_var_screen_info) == -1) {
 		opd_log(LOG_ERROR, "%-33s: cannot read variable information", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
 	opd_log(LOG_DEBUG, "%-33s: current mode is %dx%d, %dbpp, stride %d", __FUNCTION__,
@@ -76,7 +76,7 @@ int opd_read_screen_info()
 	opd_screen_size -= 1920*1080*4;
 #endif
 
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_set_screen_info(int width, int height, int bpp)
@@ -91,22 +91,22 @@ int opd_set_screen_info(int width, int height, int bpp)
 #ifndef __sh__
 	if (ioctl(opd_fb_fd, FBIOPUT_VSCREENINFO, &opd_var_screen_info) < 0) {
 		opd_log(LOG_ERROR, "%-33s: cannot set variable information", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 #endif
 	
 	if ((opd_var_screen_info.xres != width) && (opd_var_screen_info.yres != height) && (opd_var_screen_info.bits_per_pixel != bpp)) {
 		opd_log(LOG_ERROR, "%-33s: cannot set variable information: got %dx%dx%d instead of %dx%dx%d", __FUNCTION__,
 			opd_var_screen_info.xres, opd_var_screen_info.yres, opd_var_screen_info.bits_per_pixel, width, height, bpp);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	if (ioctl(opd_fb_fd, FBIOGET_FSCREENINFO, &opd_fix_screen_info) == -1) {
 		opd_log(LOG_ERROR, "%-33s: cannot read fixed information", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_map_framebuffer()
@@ -118,12 +118,12 @@ int opd_map_framebuffer()
 #endif
 	if (opd_fb_map == MAP_FAILED) {
 		opd_log(LOG_ERROR, "failed to map framebuffer device to memory");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	
 	opd_log(LOG_DEBUG, "%-33s: the framebuffer device was mapped to memory successfully", __FUNCTION__);
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 static unsigned short red[256], green[256], blue[256], trans[256];
@@ -158,7 +158,7 @@ int opd_make_palette()
 		return opd_SUCCESS; // NEED TO BE FIXED FOR VU+ BOXES !!
 	}
 */	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_set_manual_blit()
@@ -169,11 +169,11 @@ int opd_set_manual_blit()
 	unsigned char tmp = 1;
 	if (ioctl(opd_fb_fd, FBIO_SET_MANUAL_BLIT, &tmp)) {
 		opd_log(LOG_ERROR, "failed to set manual blit");
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 #endif
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 void opd_blit()
@@ -220,40 +220,40 @@ int opd_get_screen_height()
 
 int opd_open_framebuffer()
 {
-	if (opd_utils_file_exists(opd_FB_DEVICE))
-	    opd_fb_fd = open(opd_FB_DEVICE, O_RDWR);
+	if (opd_utils_file_exists(OPD_FB_DEVICE))
+	    opd_fb_fd = open(OPD_FB_DEVICE, O_RDWR);
 	else
-	    opd_fb_fd = open(opd_FB_DEVICE_FAILOVER, O_RDWR);	    
+	    opd_fb_fd = open(OPD_FB_DEVICE_FAILOVER, O_RDWR);	    
 	if (opd_fb_fd == -1) {
 		opd_log(LOG_ERROR, "%-33s: cannot open framebuffer device", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 	opd_log(LOG_DEBUG, "%-33s: the framebuffer device was opened successfully", __FUNCTION__);
 	
-	if (opd_read_screen_info() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_read_screen_info() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	if ((opd_var_screen_info.xres != opd_SCREEN_WIDTH)
-		|| (opd_var_screen_info.yres != opd_SCREEN_HEIGHT)
-		|| (opd_var_screen_info.bits_per_pixel != opd_SCREEN_BPP)) {
+	if ((opd_var_screen_info.xres != OPD_SCREEN_WIDTH)
+		|| (opd_var_screen_info.yres != OPD_SCREEN_HEIGHT)
+		|| (opd_var_screen_info.bits_per_pixel != OPD_SCREEN_BPP)) {
 			
-		if (opd_set_screen_info(opd_SCREEN_WIDTH, opd_SCREEN_HEIGHT, opd_SCREEN_BPP) == opd_ERROR)
-			return opd_ERROR;
+		if (opd_set_screen_info(OPD_SCREEN_WIDTH, OPD_SCREEN_HEIGHT, OPD_SCREEN_BPP) == OPD_ERROR)
+			return OPD_ERROR;
 	
-		if (opd_read_screen_info() == opd_ERROR)
-			return opd_ERROR;
+		if (opd_read_screen_info() == OPD_ERROR)
+			return OPD_ERROR;
 	}
 	
-	if (opd_map_framebuffer() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_map_framebuffer() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	if (opd_make_palette() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_make_palette() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	if (opd_set_manual_blit() == opd_ERROR)
-		return opd_ERROR;
+	if (opd_set_manual_blit() == OPD_ERROR)
+		return OPD_ERROR;
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 void opd_close_framebuffer()

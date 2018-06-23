@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_LOG_H_
-#define _opd_LOG_H_
+#ifndef _OPD_LOG_H_
+#define _OPD_LOG_H_
 
 #define LOG_ERROR 0
 #define LOG_WARNING 1
@@ -29,4 +29,4 @@
 
 void opd_log(int level, const char* format, ...);
 
-#endif // _opd_LOG_H_
+#endif // _OPD_LOG_H_

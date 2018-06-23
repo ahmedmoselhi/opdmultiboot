@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_LCD_H_
-#define _opd_LCD_H_
+#ifndef _OPD_LCD_H_
+#define _OPD_LCD_H_
 
 int opd_lcd_open();
 void opd_lcd_close();
@@ -36,4 +36,4 @@ void opd_lcd_write_text(const char* text);
 
 extern char opd_vumodel[63];
 
-#endif // _opd_LCD_H_
+#endif // _OPD_LCD_H_

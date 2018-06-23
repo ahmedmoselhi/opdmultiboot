@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_MENU_H_
-#define _opd_MENU_H_
+#ifndef _OPD_MENU_H_
+#define _OPD_MENU_H_
 
 int opd_menu_count();
 void opd_menu_set(opd_device_item *items);
@@ -31,4 +31,4 @@ void opd_menu_prev();
 void opd_menu_set_selected(const char *identifier);
 void opd_menu_render();
 
-#endif // _opd_MENU_H_
+#endif // _OPD_MENU_H_

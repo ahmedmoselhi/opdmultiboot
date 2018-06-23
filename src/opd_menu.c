@@ -102,8 +102,8 @@ void opd_menu_next()
 		position = opd_menu_count() - 1;
 	opd_menu_selected = position;
 	
-	if (position >= opd_menu_offset + opd_MENU_MAX_ITEMS)
-		opd_menu_offset = position - opd_MENU_MAX_ITEMS + 1;
+	if (position >= opd_menu_offset + OPD_MENU_MAX_ITEMS)
+		opd_menu_offset = position - OPD_MENU_MAX_ITEMS + 1;
 	if (opd_menu_offset < 0)
 		opd_menu_offset = 0;
 }
@@ -124,73 +124,73 @@ void opd_menu_render()
 {
 	int i;
 	int count = opd_menu_count();
-	int visible_count = count < opd_MENU_MAX_ITEMS ? count : opd_MENU_MAX_ITEMS;
+	int visible_count = count < OPD_MENU_MAX_ITEMS ? count : OPD_MENU_MAX_ITEMS;
 	int screen_width = opd_get_screen_width();
 	int screen_height = opd_get_screen_height();
-	int box_width = opd_MENU_ITEM_WIDTH + (opd_MENU_BOX_MARGIN * 2);
-	int box_height = (opd_MENU_ITEM_HEIGHT * visible_count) + (opd_MENU_BOX_MARGIN * (visible_count + 1));
+	int box_width = OPD_MENU_ITEM_WIDTH + (OPD_MENU_BOX_MARGIN * 2);
+	int box_height = (OPD_MENU_ITEM_HEIGHT * visible_count) + (OPD_MENU_BOX_MARGIN * (visible_count + 1));
 	int box_x = (screen_width - box_width) / 2;
 	int box_y = (screen_height - box_height) / 2;
 	
-	opd_draw_rounded_rect(box_x, box_y, box_width, box_height, opd_MENU_BOX_COLOR, opd_MENU_BOX_RADIUS);
+	opd_draw_rounded_rect(box_x, box_y, box_width, box_height, OPD_MENU_BOX_COLOR, OPD_MENU_BOX_RADIUS);
 	
 	if (opd_menu_offset > 0) {
-		opd_render_symbol(opd_SYMBOL_ARROW_UP,
-			box_x + opd_MENU_BOX_MARGIN,
+		opd_render_symbol(OPD_SYMBOL_ARROW_UP,
+			box_x + OPD_MENU_BOX_MARGIN,
 			box_y - 70,
-			opd_MENU_ITEM_WIDTH,
-			opd_MENU_ARROWS_COLOR,
-			opd_MENU_ARROWS_SIZE,
-			opd_TEXT_ALIGN_CENTER);
+			OPD_MENU_ITEM_WIDTH,
+			OPD_MENU_ARROWS_COLOR,
+			OPD_MENU_ARROWS_SIZE,
+			OPD_TEXT_ALIGN_CENTER);
 	}
 		
 	for (i = opd_menu_offset; i < visible_count + opd_menu_offset; i++) {
 		opd_device_item *item = opd_menu_get(i);
-		int color = opd_MENU_ITEM_COLOR;
+		int color = OPD_MENU_ITEM_COLOR;
 		if (i == opd_menu_selected) {
-#ifdef opd_HAVE_TEXTLCD
+#ifdef OPD_HAVE_TEXTLCD
 			opd_lcd_write_text(item->label);
 #else
-			int selection_y = opd_lcd_get_height() * opd_LCD_SELECTION_Y;
-			int selection_size = opd_lcd_get_width() * opd_LCD_SELECTION_SIZE;
+			int selection_y = opd_lcd_get_height() * OPD_LCD_SELECTION_Y;
+			int selection_size = opd_lcd_get_width() * OPD_LCD_SELECTION_SIZE;
 			
 			opd_render_lcd_text(item->label,
 				0,
 				selection_y,
 				opd_lcd_get_width(),
-				opd_LCD_SELECTION_COLOR,
+				OPD_LCD_SELECTION_COLOR,
 				selection_size,
-				opd_TEXT_ALIGN_CENTER);
+				OPD_TEXT_ALIGN_CENTER);
 #endif
 			
-			color = opd_MENU_ITEM_SELECTED_COLOR;
+			color = OPD_MENU_ITEM_SELECTED_COLOR;
 		}
 		
-		opd_draw_rounded_rect(box_x + opd_MENU_BOX_MARGIN,
-			box_y + opd_MENU_BOX_MARGIN,
-			opd_MENU_ITEM_WIDTH,
-			opd_MENU_ITEM_HEIGHT,
+		opd_draw_rounded_rect(box_x + OPD_MENU_BOX_MARGIN,
+			box_y + OPD_MENU_BOX_MARGIN,
+			OPD_MENU_ITEM_WIDTH,
+			OPD_MENU_ITEM_HEIGHT,
 			color,
-			opd_MENU_ITEM_RADIUS);
+			OPD_MENU_ITEM_RADIUS);
 			
 		opd_render_text(item->label,
-			box_x + opd_MENU_BOX_MARGIN,
-			box_y + opd_MENU_BOX_MARGIN + opd_MENU_ITEM_HEIGHT - opd_MENU_ITEM_TEXT_BOTTON_MARGIN,
-			opd_MENU_ITEM_WIDTH,
-			opd_MENU_ITEM_TEXT_COLOR,
-			opd_MENU_ITEM_TEXT_FONT_SIZE,
-			opd_TEXT_ALIGN_CENTER);
+			box_x + OPD_MENU_BOX_MARGIN,
+			box_y + OPD_MENU_BOX_MARGIN + OPD_MENU_ITEM_HEIGHT - OPD_MENU_ITEM_TEXT_BOTTON_MARGIN,
+			OPD_MENU_ITEM_WIDTH,
+			OPD_MENU_ITEM_TEXT_COLOR,
+			OPD_MENU_ITEM_TEXT_FONT_SIZE,
+			OPD_TEXT_ALIGN_CENTER);
 			
-		box_y += opd_MENU_ITEM_HEIGHT + opd_MENU_BOX_MARGIN;
+		box_y += OPD_MENU_ITEM_HEIGHT + OPD_MENU_BOX_MARGIN;
 	}
 	
-	if (opd_menu_offset + opd_MENU_MAX_ITEMS < count) {
-		opd_render_symbol(opd_SYMBOL_ARROW_DOWN,
-			box_x + opd_MENU_BOX_MARGIN,
+	if (opd_menu_offset + OPD_MENU_MAX_ITEMS < count) {
+		opd_render_symbol(OPD_SYMBOL_ARROW_DOWN,
+			box_x + OPD_MENU_BOX_MARGIN,
 			box_y + 20,
-			opd_MENU_ITEM_WIDTH,
-			opd_MENU_ARROWS_COLOR,
-			opd_MENU_ARROWS_SIZE,
-			opd_TEXT_ALIGN_CENTER);
+			OPD_MENU_ITEM_WIDTH,
+			OPD_MENU_ARROWS_COLOR,
+			OPD_MENU_ARROWS_SIZE,
+			OPD_TEXT_ALIGN_CENTER);
 	}
 }

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _opd_UTILS_H_
-#define _opd_UTILS_H_
+#ifndef _OPD_UTILS_H_
+#define _OPD_UTILS_H_
 
 typedef struct opd_device_item
 {
@@ -31,11 +31,11 @@ typedef struct opd_device_item
 	struct opd_device_item *next;
 } opd_device_item;
 
-#define opd_SETTINGS_SELECTED "opdboot"
-#define opd_SETTINGS_FORCE "force"
-#define opd_SETTINGS_NEXTBOOT "nextboot"
-#define opd_SETTINGS_TIMER "timer"
-#define opd_SETTINGS_RCTYPE "rctype"
+#define OPD_SETTINGS_SELECTED "selected"
+#define OPD_SETTINGS_FORCE "force"
+#define OPD_SETTINGS_NEXTBOOT "nextboot"
+#define OPD_SETTINGS_TIMER "timer"
+#define OPD_SETTINGS_RCTYPE "rctype"
 
 int opd_utils_find_and_mount();
 opd_device_item *opd_utils_get_images();

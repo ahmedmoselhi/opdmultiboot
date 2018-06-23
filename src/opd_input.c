@@ -53,12 +53,12 @@ int opd_input_open()
 	if (opd_input_num_fds == 0)
 	{
 		opd_log(LOG_ERROR, "%-33s: cannot open input device", __FUNCTION__);
-		return opd_ERROR;
+		return OPD_ERROR;
 	}
 
 	opd_log(LOG_DEBUG, "%-33s: input device opened", __FUNCTION__);
 	
-	return opd_SUCCESS;
+	return OPD_SUCCESS;
 }
 
 int opd_input_get_code()
