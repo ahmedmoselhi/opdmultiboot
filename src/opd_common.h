@@ -85,7 +85,7 @@
 #define OPD_MENU_MAX_ITEMS 8
 #define OPD_MENU_ARROWS_SIZE 120
 #ifndef OPD_MENU_ARROWS_COLOR
-#define opd_MENU_ARROWS_COLOR 0xFA336699
+#define OPD_MENU_ARROWS_COLOR 0xFA336699
 #endif
 
 #define OPD_LCD_LOGO_X 0.1 // 10% of display width
