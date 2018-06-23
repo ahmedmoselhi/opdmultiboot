@@ -576,7 +576,6 @@ void opd_utils_backup_kernel(opd_device_item *item)
 #ifdef opd_DREAMBOX
 	sprintf(cmd, "%s %s -nof %s/%s/.kernels/%s.bin", opd_NANDDUMP_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
 #elif defined(opd_MMCBLK)
-	opd_log(LOG_DEBUG, "KERNEL_MTD:  '%s'", opd_KERNEL_MTD);
 	if (opd_utils_file_exists(opd_PROC_STB))
 		sprintf(cmd, "%s if=%s of=%s/%s/.kernels/%s.bin", opd_DD_BIN, opd_KERNEL_MTD, opd_MAIN_DIR, opd_DATA_DIR, item->identifier);
 #else
