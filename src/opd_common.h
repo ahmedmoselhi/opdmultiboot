@@ -39,7 +39,7 @@
 //#define OPD_KERNEL_MTD "/dev/mtd2"
 #define OPD_MAIN_DIR "/opd"
 #define OPD_DATA_DIR "OPDBootI"
-#define OPD_PLUGIN_DIR "/usr/lib/enigma2/python/Plugins/Extensions/OPDBoot"
+#define OPD_PLUGIN_DIR "/usr/lib64/enigma2/python/Plugins/Extensions/OPDBoot"
 #define OPD_SCREEN_WIDTH 1920
 #define OPD_SCREEN_HEIGHT 1080
 #define OPD_SCREEN_BPP 32
