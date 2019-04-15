@@ -41,6 +41,7 @@ KEYS_FNC_MAP = {
 	'image_build': 'boxbranding.getImageBuild()',
 	'image_distro': 'boxbranding.getImageDistro()',
 	'image_folder': 'boxbranding.getImageFolder()',
+	'image_Arch': 'boxbranding.getImageArch()',
 	'image_file_system': 'boxbranding.getImageFileSystem()'
 }
 
