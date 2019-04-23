@@ -41,6 +41,7 @@ KEYS_FNC_MAP = {
 	'image_build': 'boxbranding.getImageBuild()',
 	'image_distro': 'boxbranding.getImageDistro()',
 	'image_folder': 'boxbranding.getImageFolder()',
+        'image_Arch': 'boxbranding.getImageArch()',
 	'image_file_system': 'boxbranding.getImageFileSystem()'
 }
 
@@ -72,7 +73,7 @@ else:
 			if WORKAROUND:
 				if sys.argv[2] == 'image_distro':
 					try:
-						print open(sys.argv[1].replace("/usr/lib/enigma2/python","")+"/etc/issue").readlines()[-2].capitalize().strip()[:-6]
+						print open(sys.argv[1].replace("/usr/lib64/enigma2/python","")+"/etc/issue").readlines()[-2].capitalize().strip()[:-6]
 					except:
 						print "undefined"
 				elif sys.argv[2] == 'image_version':
