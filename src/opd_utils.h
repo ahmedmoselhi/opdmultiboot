@@ -28,42 +28,55 @@ typedef struct opd_device_item
 	char *label;
 	char *directory;
 	char *identifier;
+	char *background;
 	struct opd_device_item *next;
 } opd_device_item;
 
-#define OPD_SETTINGS_SELECTED "selected"
-#define OPD_SETTINGS_FORCE "force"
-#define OPD_SETTINGS_NEXTBOOT "nextboot"
-#define OPD_SETTINGS_TIMER "timer"
-#define OPD_SETTINGS_RCTYPE "rctype"
+#ifdef BOXTYPE
+#define OPD_SETTINGS_PRE BOXTYPE "-"
+#else
+#define OPD_SETTINGS_PRE ""
+#endif
+
+#define OPD_SETTINGS_FLASH    OMB_SETTINGS_PRE "flash"
+#define OPD_SETTINGS_SELECTED OMB_SETTINGS_PRE "selected"
+#define OPD_SETTINGS_FORCE    OMB_SETTINGS_PRE "force"
+#define OPD_SETTINGS_NEXTBOOT OMB_SETTINGS_PRE "nextboot"
+#define OPD_SETTINGS_TIMER    OMB_SETTINGS_PRE "timer"
+#define OPD_SETTINGS_RCTYPE   OMB_SETTINGS_PRE "rctype"
 
 int opd_utils_find_and_mount();
 opd_device_item *opd_utils_get_images();
-void opd_utils_update_background(opd_device_item *item);
-void opd_utils_free_items(opd_device_item *items);
+
+int opd_utils_umount(const char* mountpoint);
+int opd_utils_dir_exists(const char* folder);
+int opd_utils_file_exists(const char* filename);
+
+void opd_utils_update_background(omb_device_item *item);
+void opd_utils_free_items(omb_device_item *items);
 
 void opd_utils_save(const char* key, const char* value);
 char* opd_utils_read(const char *key);
 void opd_utils_save_int(const char* key, int value);
 int opd_utils_read_int(const char *key);
 int opd_utils_check_lock_menu();
-void opd_utils_build_platform_wrapper(opd_device_item *item);
+void opd_utils_build_platform_wrapper(omb_device_item *item);
 
 void opd_utils_remove_nextboot();
 int opd_utils_gettimer();
 void opd_utils_setrctype();
 
 void opd_utils_init_system();
-void opd_utils_prepare_destination(opd_device_item *item);
-void opd_utils_load_modules(opd_device_item *item);
-void opd_utils_load_modules_gl(opd_device_item *item);
+void opd_utils_prepare_destination(omb_device_item *item);
+void opd_utils_load_modules(omb_device_item *item);
+void opd_utils_load_modules_gl(omb_device_item *item);
 
-void opd_utils_backup_kernel(opd_device_item *item);
-void opd_utils_restore_kernel(opd_device_item *item);
+void opd_utils_backup_kernel(omb_device_item *item);
+void opd_utils_restore_kernel(omb_device_item *item);
 
-void opd_utils_remount_media(opd_device_item *item);
+void opd_utils_remount_media(omb_device_item *item);
 
 void opd_utils_reboot();
-void opd_utils_sysvinit(opd_device_item *item, const char *args);
+void opd_utils_sysvinit(omb_device_item *item, const char *args);
 
-#endif // _opd_UTILS_H_
+#endif // _OPD_UTILS_H_

@@ -226,8 +226,8 @@ int main(int argc, char *argv[])
 			opd_menu_set(items);
 			selected = opd_utils_read(OPD_SETTINGS_SELECTED);
 			if (!selected) {
-				selected = malloc(6);
-				strcpy(selected, "flash");
+				selected = malloc(sizeof(OPD_SETTINGS_FLASH));
+				strcpy(selected, OPD_SETTINGS_FLASH);
 			}
 			opd_menu_set_selected(selected);
 			item = opd_menu_get_selected();
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 		}
 		
 		if (!is_rebooting) {
-			if (item != NULL && strcmp(item->identifier, "flash") != 0)
+			if (item != NULL && strcmp(item->identifier, OPD_SETTINGS_FLASH) != 0)
 				opd_utils_remount_media(item);
 			opd_utils_umount(OPD_MAIN_DIR);
 			opd_utils_sysvinit(item, NULL);
