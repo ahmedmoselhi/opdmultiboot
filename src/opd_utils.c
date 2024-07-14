@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <mntent.h>
 #include <unistd.h>
+#include <json-c/json.h>
 
 #include "opd_common.h"
 #include "opd_log.h"
@@ -177,48 +178,95 @@ int opd_utils_find_and_mount()
 
 opd_device_item *opd_utils_get_images()
 {
-	struct dirent *dir;
-	char datadir[255];
-	DIR *fd;
-	
+	char cmd[255];
+	int BUF_SIZE = 255;
+	char buffer[BUF_SIZE];
+	FILE *fd;
+	char *content;
+
+	struct json_object *parsed_json;
+	struct json_object *currentimage;
+	struct json_object *images_entries;
+	size_t n_images_entries;
+	struct json_object *image_entry;
+
+	struct json_object *label;
+	struct json_object *path;
+	struct json_object *identifier;
+	struct json_object *background;
+	struct json_object *kernelbin;
+	struct json_object *labelfile;
+	size_t i;
+
 	opd_device_item *first = NULL;
 	opd_device_item *last = NULL;
-	
+
+	const char* tmp;
+
 	opd_log(LOG_DEBUG, "%-33s: discover images", __FUNCTION__);
-	
-	opd_device_item *item = opd_branding_read_info("", "flash");
-	if (item != NULL) {
-		if (first == NULL)
-			first = item;
-		if (last != NULL)
-			last->next = item;
-		last = item;
+
+	sprintf(cmd, "%s/open-multiboot-menu-helper.py %s", OPD_PLUGIN_DIR, OPD_MAIN_DIR);
+	fd = popen(cmd, "r");
+	if (! fd) {
+		return first;
 	}
-
-	sprintf(datadir, "%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR);
-	fd = opendir(datadir);
-	if (fd) {
-		while ((dir = readdir(fd)) != NULL) {
-			if (strlen(dir->d_name) > 0 && dir->d_name[0] != '.') {
-				char base_dir[255];
-				sprintf(base_dir, "%s/%s", datadir, dir->d_name);
-
-				if (!opd_branding_is_compatible(base_dir)) {
-					opd_log(LOG_DEBUG ,"%-33s: skipping image %s", __FUNCTION__, base_dir);
-					continue;
-				}
-
-				opd_device_item *item = opd_branding_read_info(base_dir, dir->d_name);
-				if (item != NULL) {
-					if (first == NULL)
-						first = item;
-					if (last != NULL)
-						last->next = item;
-					last = item;
-				}
-			}
+	int extent = sizeof(char) * BUF_SIZE + 1;
+	content = (char *) malloc(extent);
+	*content = '\0';
+	while (fgets(buffer, sizeof(buffer), fd) != NULL) {
+		strcat(content,buffer);
+		if ((strlen(content)+ BUF_SIZE) > extent ) {
+			extent += BUF_SIZE;
+			content = realloc( content, extent);
 		}
-		closedir(fd);
+	}
+	pclose(fd);
+
+	parsed_json = json_tokener_parse(content);
+
+	json_object_object_get_ex(parsed_json, "images_entries", &images_entries);
+
+	n_images_entries = json_object_array_length(images_entries);
+//	printf("Found %lu images_entries\n",n_images_entries);
+
+	for(i=0;i<n_images_entries;i++) {
+		image_entry = json_object_array_get_idx(images_entries, i);
+		json_object_object_get_ex(image_entry, "label", &label);
+//		printf("%lu. %s\n",i+1,json_object_get_string(label));
+		json_object_object_get_ex(image_entry, "path", &path);
+//		printf("   %s\n",json_object_get_string(path));
+		json_object_object_get_ex(image_entry, "identifier", &identifier);
+//		printf("   %s\n",json_object_get_string(identifier));
+		json_object_object_get_ex(image_entry, "background", &background);
+//		printf("   %s\n",json_object_get_string(background));
+//		json_object_object_get_ex(image_entry, "kernelbin", &kernelbin);
+//		printf("   %s\n",json_object_get_string(kernelbin));
+//		json_object_object_get_ex(image_entry, "labelfile", &labelfile);
+//		printf("   %s\n",json_object_get_string(labelfile));
+
+		opd_device_item *item = malloc(sizeof(opd_device_item));
+
+		tmp = json_object_get_string(path);
+		item->directory = malloc(strlen(tmp) + 1);
+		strcpy(item->directory,tmp);
+		tmp = json_object_get_string(identifier);
+		item->identifier = malloc(strlen(tmp) + 1);
+		strcpy(item->identifier, tmp);
+		tmp = json_object_get_string(background);
+		item->background = malloc(strlen(tmp) + 1);
+		strcpy(item->background, tmp);
+		tmp = json_object_get_string(label);
+		item->label = malloc(strlen(tmp) + 1);
+		strcpy(item->label, tmp);
+
+		item->next = NULL;
+		if (item != NULL) {
+			if (first == NULL)
+				first = item;
+			if (last != NULL)
+				last->next = item;
+			last = item;
+		}
 	}
 	return first;
 }
@@ -233,6 +281,7 @@ void opd_utils_free_items(opd_device_item *items)
 		free(tmp2->label);
 		free(tmp2->directory);
 		free(tmp2->identifier);
+		free(tmp2->background);
 		free(tmp2);
 	}
 }
@@ -240,7 +289,7 @@ void opd_utils_free_items(opd_device_item *items)
 void opd_utils_update_background(opd_device_item *item)
 {
 	char tmp[255];
-	sprintf(tmp, "%s %s/usr/share/bootlogo.mvi", OPD_SHOWIFRAME_BIN, item->directory);
+	sprintf(tmp, "%s %s%s", OPD_SHOWIFRAME_BIN, item->directory, item->background);
 	system(tmp);
 }
 
@@ -410,18 +459,20 @@ void opd_utils_prepare_destination(opd_device_item *item)
 {	
 	opd_log(LOG_DEBUG, "%-33s: prepare destination", __FUNCTION__);
 
-	if (item != NULL && strcmp(item->identifier, "flash") != 0)
+	if (item != NULL && strcmp(item->identifier, OPD_SETTINGS_FLASH) != 0)
 	{
 		char dev[255];
 		char proc[255];
 		char sys[255];
-		char opd[255];
-		char opd_plugin[255];
+		char omb[255];
+		char omb_plugin[255];
+		char flash[255];
 		sprintf(dev, "%s/%s/%s/dev", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		sprintf(proc, "%s/%s/%s/proc", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		sprintf(sys, "%s/%s/%s/sys", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
-		sprintf(opd, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR);
-		sprintf(opd_plugin, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_PLUGIN_DIR);
+		sprintf(omb, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR);
+		sprintf(omb_plugin, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_PLUGIN_DIR);
+		sprintf(flash, "%s/%s/%s/%s/%s/flash", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR, OPD_DATA_DIR);
 		
 		if (!opd_utils_is_mounted(dev))
 			if (mount("/dev", dev, NULL, MS_BIND, NULL) != 0)
@@ -448,6 +499,13 @@ void opd_utils_prepare_destination(opd_device_item *item)
 		if (!opd_utils_is_mounted(opd_plugin))
 			if (mount(OPD_PLUGIN_DIR, opd_plugin, NULL, MS_BIND, NULL) != 0)
 				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, OPD_PLUGIN_DIR, opd_plugin);
+
+		if (!opd_utils_dir_exists(flash))
+			mkdir(flash, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+		if (!opd_utils_is_mounted(flash))
+			if (mount("/", flash, NULL, MS_BIND, NULL) != 0)
+				opd_log(LOG_ERROR, "%-33s: cannot bind %s to %s", __FUNCTION__, "/", flash);
 	}
 	
 }
@@ -458,8 +516,8 @@ void opd_utils_load_modules(opd_device_item *item)
 	
 	opd_log(LOG_DEBUG, "%-33s: load modules", __FUNCTION__);
 
-	if (item == NULL || strcmp(item->identifier, "flash") == 0) {
-		system(OPD_MODUTILS_BIN);
+	if (item == NULL || strcmp(item->identifier, OPD_SETTINGS_FLASH) == 0) {
+		system(OMB_MODUTILS_BIN);
 	}
 	else {
 		
@@ -478,7 +536,7 @@ void opd_utils_load_modules(opd_device_item *item)
 
 #ifdef __sh__
 	opd_log(LOG_DEBUG, "%-33s: load lirc", __FUNCTION__);
-	if (item == NULL || strcmp(item->identifier, "flash") == 0) {
+	if (item == NULL || strcmp(item->identifier, OPD_SETTINGS_FLASH) == 0) {
 		system("/etc/init.d/populate-volatile.sh start");
 		system("/etc/init.d/lircd start");
 	}
@@ -506,7 +564,7 @@ void opd_utils_load_modules_gl(opd_device_item *item)
 	
 	int i;
 
-	if (item == NULL || strcmp(item->identifier, "flash") == 0) 
+	if (item == NULL || strcmp(item->identifier, OPD_SETTINGS_FLASH) == 0) 
 	{
 		system("/etc/init.d/mountall.sh start");
 		system("/etc/init.d/modload.sh start");

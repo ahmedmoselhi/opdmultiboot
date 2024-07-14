@@ -9,3 +9,6 @@ opd_multiboot_SOURCES = opd_branding.c \
 	opd_utils.c
 
 sbin_PROGRAMS = opd_multiboot
+
+opd_multiboot_CFLAGS = $(LIBJSON_CFLAGS)
+opd_multiboot_LDADD = $(LIBJSON_LIBS)

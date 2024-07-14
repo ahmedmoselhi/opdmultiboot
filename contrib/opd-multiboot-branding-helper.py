@@ -46,13 +46,13 @@ KEYS_FNC_MAP = {
 }
 
 def print_help():
-	print 'Syntax:'
-	print sys.argv[0] + ' enigma2_dir key'
-	print ''
-	print 'Valid keys:'
+	print('Syntax:')
+	print(sys.argv[0] + ' enigma2_dir key')
+	print('')
+	print('Valid keys:')
 	for key in KEYS_FNC_MAP.keys():
-		print ' * ' + key
-	print ' * all'
+		print(' * ' + key)
+	print(' * all')
 
 if len(sys.argv) != 3:
 	print_help()
@@ -68,7 +68,7 @@ else:
 	else:
 		if sys.argv[2] == 'all':
 			for key in KEYS_FNC_MAP.keys():
-				print key + ' = ' + eval(KEYS_FNC_MAP[key])
+				print(key + ' = ' + eval(KEYS_FNC_MAP[key]))
 		else:
 			if WORKAROUND:
 				if sys.argv[2] == 'image_distro':
@@ -77,7 +77,7 @@ else:
 					except:
 						print "undefined"
 				elif sys.argv[2] == 'image_version':
-					print ' '
+					print(' ')
 				else:
 					pass
 			else:
