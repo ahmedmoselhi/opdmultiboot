@@ -679,7 +679,7 @@ void opd_utils_reboot()
 
 void opd_utils_sysvinit(opd_device_item *item, const char *args)
 {
-	if (item == NULL || strcmp(item->identifier, "flash") == 0) {
+	if (item == NULL || strcmp(item->identifier, OPD_SETTINGS_FLASH) == 0) {
 		execl(OPD_SYSVINIT_BIN, OPD_SYSVINIT_BIN, args, NULL);
 	}
 	else {
