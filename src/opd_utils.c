@@ -464,14 +464,14 @@ void opd_utils_prepare_destination(opd_device_item *item)
 		char dev[255];
 		char proc[255];
 		char sys[255];
-		char omb[255];
-		char omb_plugin[255];
+		char opd[255];
+		char opd_plugin[255];
 		char flash[255];
 		sprintf(dev, "%s/%s/%s/dev", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		sprintf(proc, "%s/%s/%s/proc", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
 		sprintf(sys, "%s/%s/%s/sys", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier);
-		sprintf(omb, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR);
-		sprintf(omb_plugin, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_PLUGIN_DIR);
+		sprintf(opd, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR);
+		sprintf(opd_plugin, "%s/%s/%s/%s", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_PLUGIN_DIR);
 		sprintf(flash, "%s/%s/%s/%s/%s/flash", OPD_MAIN_DIR, OPD_DATA_DIR, item->identifier, OPD_MAIN_DIR, OPD_DATA_DIR);
 		
 		if (!opd_utils_is_mounted(dev))
@@ -517,7 +517,7 @@ void opd_utils_load_modules(opd_device_item *item)
 	opd_log(LOG_DEBUG, "%-33s: load modules", __FUNCTION__);
 
 	if (item == NULL || strcmp(item->identifier, OPD_SETTINGS_FLASH) == 0) {
-		system(OMB_MODUTILS_BIN);
+		system(OPD_MODUTILS_BIN);
 	}
 	else {
 		
