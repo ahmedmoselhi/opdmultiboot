@@ -52,7 +52,7 @@ int opd_utils_umount(const char* mountpoint);
 int opd_utils_dir_exists(const char* folder);
 int opd_utils_file_exists(const char* filename);
 
-void opd_utils_update_background(omb_device_item *item);
+void opd_utils_update_background(opd_device_item *item);
 void opd_utils_free_items(opd_device_item *items);
 
 void opd_utils_save(const char* key, const char* value);
