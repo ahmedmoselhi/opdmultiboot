@@ -71,10 +71,11 @@ jobs:
           source env.source
           bitbake opdmultiboot
 
-      - name: List contents of ipk directory
+      - name: List contents of ipk directorys
         run: |
-          echo "Listing the contents of the directory..."
-          ls -la /home/runner/work/opdmultiboot/opdmultiboot/build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/*
+          echo "Listing the contents of the directorys..."
+          ls -la build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/*
+          ls -la build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/cortexa15hf-neon-vfpv4/*
 
       - name: Create release
         uses: Taapat/github-release@v2.1.0
@@ -84,4 +85,5 @@ jobs:
           name: ${{ env.COMMIT_SUBJECT }}
           gzip: false
           files: >
-            /home/runner/work/opdmultiboot/opdmultiboot/build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/opdmultiboot_*.ipk
+            build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/opdmultiboot_*.ipk 
+            build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/cortexa15hf-neon-vfpv4/libjson-c5_*.ipk
