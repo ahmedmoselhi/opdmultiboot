@@ -1,0 +1,97 @@
+name: OpenEmbedded Build
+
+# Controls when the workflow is triggered.
+# This example is set to manually trigger, which is useful for long-running builds.
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build_and_release:
+    # Runs on the latest Ubuntu runner hosted by GitHub.
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set git variables
+        run: |
+          echo "SRCPV=git$(git rev-list --count HEAD)" >> $GITHUB_ENV
+
+      - name: Execute OpenEmbedded build commands
+        run: |
+          echo "Starting the OpenEmbedded build process..."
+          
+          # Install necessary dependencies
+          echo "Installing system dependencies..."
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake bison bzip2 chrpath cmake coreutils cpio curl cvs debianutils default-jre default-jre-headless diffstat flex \
+                                  g++ gawk gcc gcc-12 gcc-multilib g++-multilib gettext git gzip help2man info iputils-ping java-common libc6-dev libc6-dev-i386 \
+                                  libglib2.0-dev libncurses-dev libperl4-corelibs-perl libproc-processtable-perl libsdl1.2-dev libserf-dev libtool libxml2-utils \
+                                  make ncurses-bin patch perl pkg-config psmisc python3 python3-git python3-jinja2 python3-pexpect python3-pip python3-setuptools \
+                                  quilt socat sshpass subversion tar texi2html texinfo unzip wget xsltproc xterm xz-utils zip zlib1g-dev zstd fakeroot lz4 git-lfs
+
+          # Create a symbolic link for /bin/sh
+          echo "Setting up /bin/sh link..."
+          sudo ln -sf /bin/bash /bin/sh
+
+          # Set kernel parameters to increase inotify watches
+          echo "Adjusting kernel parameters for inotify..."
+          echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+          sudo sysctl -n -w fs.inotify.max_user_watches=524288
+          echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-namespace.conf > /dev/null && sudo sysctl --system
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          
+          # Configure Git user details
+          echo "Configuring Git user..."
+          git config --global user.email "ahmedmoselhi55@gmail.com"
+          git config --global user.name "ahmedmoselhi"
+
+          # Clone the build environment and initialize
+          echo "Cloning and initializing build environment..."
+          git clone https://github.com/oe-alliance/build-enviroment.git -b 5.6 && cd build-enviroment
+          make update
+
+          # Applying Patches
+          echo "Applying Patches..."
+          cd meta-oe-alliance
+          git remote add me https://github.com/ahmedmoselhi/oe-alliance-core.git
+          git fetch me 5.6
+          git cherry-pick 8644ce7764854e16377d1bd8649655ab55fab039
+          cd ..
+          
+          # Set up the machine-specific build environment
+          echo "Initializing the build for novaler4kpro..."
+          MACHINE=novaler4kpro DISTRO=opendroid DISTRO_TYPE=release make init
+          
+          # Navigate into the build directory
+          echo "Entering the build directory..."
+          cd builds/opendroid/release/multiboxpro/
+
+          # Source the environment variables and start the BitBake build
+          echo "Starting the BitBake process..."
+          source env.source
+          bitbake opdmultiboot
+
+      - name: List contents of ipk directorys
+        run: |
+          echo "Listing the contents of the directorys..."
+          ls -la build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/*
+          ls -la build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/cortexa15hf-neon-vfpv4/*
+
+      - name: Create release
+        uses: Taapat/github-release@v2.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.SRCPV }}
+          name: ${{ env.COMMIT_SUBJECT }}
+          gzip: false
+          files: >
+            build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/opdmultiboot_*.ipk 
+            build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/cortexa15hf-neon-vfpv4/libjson-c5_*.ipk
