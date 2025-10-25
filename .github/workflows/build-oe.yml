@@ -12,13 +12,17 @@ on:
       - 'README.md'
 
 jobs:
-  build:
+  build_and_release:
     # Runs on the latest Ubuntu runner hosted by GitHub.
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set git variables
+        run: |
+          echo "SRCPV=git$(git rev-list --count HEAD)" >> $GITHUB_ENV
 
       - name: Execute OpenEmbedded build commands
         run: |
@@ -67,3 +71,17 @@ jobs:
           source env.source
           bitbake opdmultiboot
 
+      - name: List contents of ipk directory
+        run: |
+          echo "Listing the contents of the directory..."
+          ls -la /home/runner/work/opdmultiboot/opdmultiboot/build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/*
+
+      - name: Create release
+        uses: Taapat/github-release@v2.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.SRCPV }}
+          name: ${{ env.COMMIT_SUBJECT }}
+          gzip: false
+          files: >
+            /home/runner/work/opdmultiboot/opdmultiboot/build-enviroment/builds/opendroid/release/multiboxpro/tmp/deploy/ipk/multiboxpro/opdmultiboot_*.ipk
